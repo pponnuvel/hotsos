@@ -47,6 +47,10 @@ class constants_properties(type):
     def MAX_LOGROTATE_DEPTH(cls):
         return cls._MAX_LOGROTATE_DEPTH()
 
+    @property
+    def USER_INPUT(cls):
+        return cls._USER_INPUT()
+
 
 class constants(object, metaclass=constants_properties):
     """
@@ -108,3 +112,7 @@ class constants(object, metaclass=constants_properties):
     @classmethod
     def _MAX_LOGROTATE_DEPTH(cls):
         return int(os.environ.get('MAX_LOGROTATE_DEPTH', 7))
+
+    @classmethod
+    def _USER_INPUT(cls):
+        return int(os.environ.get('USER_INPUT'))

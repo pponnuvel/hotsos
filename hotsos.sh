@@ -43,10 +43,12 @@ export PART_NAME
 export PLUGIN_TMP_DIR
 # location if yaml defs of issues, bugs etc
 export PLUGIN_YAML_DEFS
+export USER_INPUT
 #===============================================================================
 
 MASTER_YAML_OUT=`mktemp`
 SAVE_OUTPUT=false
+I_WANT_SPECIAL_SOS=false
 declare -a SOS_PATHS=()
 # unordered
 declare -A PLUGINS=(
@@ -173,6 +175,13 @@ while (($#)); do
             export MAX_LOGROTATE_DEPTH=$2
             shift
             ;;
+        --specialsos)
+            I_WANT_SPECIAL_SOS=true
+            ;;
+        --filter)
+            USER_INPUT=$2
+            shift
+            ;;
         -s|--save)
             SAVE_OUTPUT=true
             ;;
@@ -209,6 +218,10 @@ done
 
 if ((${#SOS_PATHS[@]}==0)); then
     SOS_PATHS=( / )
+fi
+
+if $I_WANT_SPECIAL_SOS; then
+    PLUGINS[all]=true
 fi
 
 if ! $override_all_default && ! ${PLUGINS[all]}; then
@@ -251,6 +264,7 @@ run_part ()
 {
     local plugin=$1
     local part=$2
+    local type=${3:-parts}
     local t_start
     local t_end
 
@@ -317,6 +331,13 @@ for data_root in "${SOS_PATHS[@]}"; do
                 grep -v __pycache__`; do
             run_part $plugin `basename $part`
         done
+
+        if [[ $plugin == "openstack" ]]; then
+            if $I_WANT_SPECIAL_SOS; then
+                run_part openstack get_extended_vm_info.py extras
+            fi
+        fi
+
         # teardown plugin temp area
         if [[ -n $PLUGIN_TMP_DIR ]] && [[ -d $PLUGIN_TMP_DIR ]]; then
             rm -rf $PLUGIN_TMP_DIR
