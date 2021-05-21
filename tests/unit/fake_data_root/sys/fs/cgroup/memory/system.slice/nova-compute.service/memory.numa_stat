@@ -1,0 +1,8 @@
+total=620911 N0=620914
+file=571009 N0=571017
+anon=49902 N0=49897
+unevictable=0 N0=0
+hierarchical_total=620911 N0=620914
+hierarchical_file=571009 N0=571017
+hierarchical_anon=49902 N0=49897
+hierarchical_unevictable=0 N0=0

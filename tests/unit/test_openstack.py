@@ -151,6 +151,7 @@ class TestOpenstackPluginPartVm_info(TestOpenstackBase):
                             "available-cores": 2,
                             "system-cores": 2,
                             "used": 2,
+                            "smt": 'disabled',
                             "overcommit-factor": 1.0,
                             }
                         }

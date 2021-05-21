@@ -1,0 +1,8 @@
+total=1968 N0=2020
+file=957 N0=977
+anon=1011 N0=1043
+unevictable=0 N0=0
+hierarchical_total=1968 N0=2020
+hierarchical_file=957 N0=977
+hierarchical_anon=1011 N0=1043
+hierarchical_unevictable=0 N0=0

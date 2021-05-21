@@ -101,6 +101,7 @@ plugins:
       ceph_daemon_logs:
         - get_ceph_daemon_log_checker
       bcache:
+        - BcacheConfigChecks
         - BcacheDeviceChecks
         - BcacheStatsChecks
 

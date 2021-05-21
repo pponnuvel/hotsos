@@ -1,0 +1,24 @@
+slabinfo - version: 2.1
+# name            <active_objs> <num_objs> <objsize> <objperslab> <pagesperslab> : tunables <limit> <batchcount> <sharedfactor> : slabdata <active_slabs> <num_slabs> <sharedavail>
+buffer_head            6     78    104   39    1 : tunables    0    0    0 : slabdata      2      2      0
+proc_inode_cache       3     24    680   12    2 : tunables    0    0    0 : slabdata      2      2      0
+inode_cache            2     13    608   13    2 : tunables    0    0    0 : slabdata      1      1      0
+dentry                 5     63    192   21    1 : tunables    0    0    0 : slabdata      3      3      0
+proc_inode_cache      96    108    680   12    2 : tunables    0    0    0 : slabdata      9      9      0
+dentry                96    126    192   21    1 : tunables    0    0    0 : slabdata      6      6      0
+buffer_head           17     78    104   39    1 : tunables    0    0    0 : slabdata      2      2      0
+dentry                 1     21    192   21    1 : tunables    0    0    0 : slabdata      1      1      0
+radix_tree_node        4     14    584   14    2 : tunables    0    0    0 : slabdata      1      1      0
+dentry                 4     21    192   21    1 : tunables    0    0    0 : slabdata      1      1      0
+dentry                 6     42    192   21    1 : tunables    0    0    0 : slabdata      2      2      0
+dentry                 3     21    192   21    1 : tunables    0    0    0 : slabdata      1      1      0
+radix_tree_node        1     14    584   14    2 : tunables    0    0    0 : slabdata      1      1      0
+ext4_inode_cache       1     29   1096   29    8 : tunables    0    0    0 : slabdata      1      1      0
+dentry               112    147    192   21    1 : tunables    0    0    0 : slabdata      7      7      0
+dentry                72    105    192   21    1 : tunables    0    0    0 : slabdata      5      5      0
+kmalloc-rcl-64         1     64     64   64    1 : tunables    0    0    0 : slabdata      1      1      0
+ext4_inode_cache      64     87   1096   29    8 : tunables    0    0    0 : slabdata      3      3      0
+dentry                75    189    192   21    1 : tunables    0    0    0 : slabdata      9      9      0
+ext4_inode_cache      11     58   1096   29    8 : tunables    0    0    0 : slabdata      2      2      0
+dentry                27     63    192   21    1 : tunables    0    0    0 : slabdata      3      3      0
+dentry                 1     21    192   21    1 : tunables    0    0    0 : slabdata      1      1      0

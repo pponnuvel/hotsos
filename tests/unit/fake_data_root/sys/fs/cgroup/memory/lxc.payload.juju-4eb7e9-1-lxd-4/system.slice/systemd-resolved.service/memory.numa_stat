@@ -1,0 +1,8 @@
+total=2017 N0=2015
+file=990 N0=973
+anon=1027 N0=1042
+unevictable=0 N0=0
+hierarchical_total=2017 N0=2015
+hierarchical_file=990 N0=973
+hierarchical_anon=1027 N0=1042
+hierarchical_unevictable=0 N0=0

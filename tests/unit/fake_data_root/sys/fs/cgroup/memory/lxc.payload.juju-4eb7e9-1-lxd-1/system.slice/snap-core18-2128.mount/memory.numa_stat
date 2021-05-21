@@ -1,0 +1,8 @@
+total=3263 N0=3255
+file=3046 N0=3031
+anon=217 N0=224
+unevictable=0 N0=0
+hierarchical_total=3263 N0=3255
+hierarchical_file=3046 N0=3031
+hierarchical_anon=217 N0=224
+hierarchical_unevictable=0 N0=0

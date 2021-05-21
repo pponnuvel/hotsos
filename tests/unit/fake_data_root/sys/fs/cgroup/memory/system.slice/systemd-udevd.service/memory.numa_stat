@@ -1,0 +1,8 @@
+total=10932 N0=10934
+file=10131 N0=10151
+anon=636 N0=609
+unevictable=165 N0=174
+hierarchical_total=10932 N0=10934
+hierarchical_file=10131 N0=10151
+hierarchical_anon=636 N0=609
+hierarchical_unevictable=165 N0=174

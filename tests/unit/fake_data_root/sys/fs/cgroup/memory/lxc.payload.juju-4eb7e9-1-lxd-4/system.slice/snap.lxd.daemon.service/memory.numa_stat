@@ -1,0 +1,8 @@
+total=3812 N0=3791
+file=3779 N0=3747
+anon=33 N0=44
+unevictable=0 N0=0
+hierarchical_total=3812 N0=3791
+hierarchical_file=3779 N0=3747
+hierarchical_anon=33 N0=44
+hierarchical_unevictable=0 N0=0

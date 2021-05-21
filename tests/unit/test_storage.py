@@ -153,8 +153,8 @@ class TestStoragePluginPartBcache(utils.BaseTestCase):
         self.maxDiff = None
         expected = {'bcache': {
                         'cachesets': [{
-                            'cache_available_percent': 95,
-                            'uuid': '2bb274af-a015-4496-9455-43393ea06aa2'}]
+                            'cache_available_percent': 96,
+                            'uuid': 'f0654696-f915-4c8e-8c3e-a75829fd919c'}]
                         }
                     }
         inst = bcache.BcacheStatsChecks()

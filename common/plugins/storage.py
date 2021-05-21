@@ -152,3 +152,9 @@ class BcacheChecksBase(StorageChecksBase):
             del cset["path"]
 
         return cachesets
+
+    def get_cachesets(self):
+        return glob.glob(os.path.join(constants.DATA_ROOT, "sys/fs/bcache/*"))
+
+    def get_cacheset_bdevs(self, cset):
+        return glob.glob(os.path.join(cset, "bdev*"))

@@ -1,0 +1,8 @@
+total=73109 N0=73142
+file=8713 N0=8732
+anon=64396 N0=64410
+unevictable=0 N0=0
+hierarchical_total=73109 N0=73142
+hierarchical_file=8713 N0=8732
+hierarchical_anon=64396 N0=64410
+hierarchical_unevictable=0 N0=0

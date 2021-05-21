@@ -1,0 +1,8 @@
+total=77573 N0=77613
+file=72831 N0=72868
+anon=4709 N0=4732
+unevictable=33 N0=13
+hierarchical_total=77573 N0=77613
+hierarchical_file=72831 N0=72868
+hierarchical_anon=4709 N0=4732
+hierarchical_unevictable=33 N0=13

@@ -6,7 +6,7 @@ dirs=( $@ )
 
 echo "INFO: starting flake8 tests"
 for dir in ${dirs[@]}; do
-    for f in `find $dir -type f`; do
+    for f in `find $dir -type f| grep -v fake_data_root`; do
         if `file $f| grep -q "Python script"`; then
             flake8 $f
             if (($?)); then
