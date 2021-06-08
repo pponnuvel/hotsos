@@ -40,7 +40,7 @@ class LogSequenceCollection(object):
     def update_sequence(self, unique_key, key, value):
         self._sequences[unique_key][key] = value
 
-    def add_sequence_end(self, key, end, duration=None):
+    def add_sequence_end(self, key, end):
         if key in self.sequence_end_unique_ids:
             self.sequence_end_unique_ids[key] += 1
         else:
@@ -50,9 +50,6 @@ class LogSequenceCollection(object):
         unique_sequence_key = "{}_{}".format(seq_key, key)
 
         self._sequences[unique_sequence_key] = {"end": end}
-        if duration:
-            self._sequences[unique_sequence_key]["duration"] = duration
-
         return unique_sequence_key
 
     def add_sequence_start(self, key, data):
@@ -83,21 +80,18 @@ class LogSequenceCollection(object):
 
 
 class SearchResultIndices(object):
-    def __init__(self, day_idx=1, secs_idx=2, event_id_idx=3,
-                 duration_idx=None):
+    def __init__(self, day_idx=1, secs_idx=2, event_id_idx=3):
         """
         This is used to know where to find required information within a
         SearchResult. The indexes refer to python.re groups.
 
         The minimum required information that a result must contain is day,
         secs and event_id. Results will be referred to using whatever event_id
-        is set to. If the results contain a field for length of time between
-        start and end this can be provided with duration_idx.
+        is set to.
         """
         self.day = day_idx
         self.secs = secs_idx
         self.event_id = event_id_idx
-        self.duration = duration_idx
 
 
 class LogSequenceBase(object):
@@ -131,9 +125,6 @@ class LogSequenceBase(object):
             day = result.get(self.log_seq_idxs.day)
             secs = result.get(self.log_seq_idxs.secs)
             event_id = result.get(self.log_seq_idxs.event_id)
-            duration = result.get(self.log_seq_idxs.duration)
-            if duration is not None:
-                duration = round(float(duration), 2)
 
             end = "{} {}".format(day, secs)
             end = datetime.strptime(end, "%Y-%m-%d %H:%M:%S.%f")
@@ -141,7 +132,7 @@ class LogSequenceBase(object):
             # event_id may have many updates over time across many files so we
             # need to have a way to make them unique.
             key = "{}_{}".format(os.path.basename(result.source), event_id)
-            unique_key = self.data.add_sequence_end(key, end, duration)
+            unique_key = self.data.add_sequence_end(key, end)
 
         start_tag = "{}-start".format(self.results_tag_prefix)
         for result in self.results.find_by_tag(start_tag):
@@ -158,17 +149,14 @@ class LogSequenceBase(object):
                 if not sequence:
                     continue
 
-                duration = sequence.get("duration")
-                if duration is None:
-                    end = sequence.get("end", None)
-                    etime = end - start
-                    if etime.total_seconds() < 0:
-                        # this is probably a broken or invalid sequence so we
-                        # set ingore it.
-                        continue
+                end = sequence.get("end", None)
+                etime = end - start
+                if etime.total_seconds() < 0:
+                    # this is probably a broken or invalid sequence so we
+                    # set ingore it.
+                    continue
 
-                    duration = round(float(etime.total_seconds()), 2)
-
+                duration = round(float(etime.total_seconds()), 2)
                 self.data.update_sequence(unique_key, "duration", duration)
 
         if not self.data.has_complete_sequences():
@@ -181,42 +169,37 @@ class LogSequenceBase(object):
 class LogSequenceStats(LogSequenceBase):
     """ This class provides statistical information on log sequences."""
 
-    def get_top_sequences(self, max, sort_by_key, reverse=False):
+    def get_top_sequences(self, limit, sort_key, reverse=False):
         count = 0
         top_n = {}
         top_n_sorted = {}
 
         valid_sequences = {}
-        for k, v in self.data.complete_sequences.items():
-            if v.get(sort_by_key):
-                valid_sequences[k] = v
+        for id, data in self.data.complete_sequences.items():
+            if sort_key in data:
+                valid_sequences[id] = data
 
-        for k, v in sorted(valid_sequences.items(),
-                           key=lambda x: x[1].get(sort_by_key, 0),
-                           reverse=reverse):
-            # skip unterminated entries (e.g. on file wraparound)
-            if "start" not in v:
-                continue
-
-            if count >= max:
+        for id, data in sorted(valid_sequences.items(),
+                               key=lambda x: x[1].get(sort_key, 0),
+                               reverse=reverse):
+            if count >= limit:
                 break
 
             count += 1
-            top_n[k] = v
+            top_n[id] = data
 
-        for k, v in sorted(top_n.items(), key=lambda x: x[1]["start"],
-                           reverse=reverse):
-            event_id = k.rpartition('_')[2]
+        for id, data in sorted(top_n.items(), key=lambda x: x[1]["start"],
+                               reverse=reverse):
+            event_id = id.rpartition('_')[2]
             event_id = event_id.partition('_')[0]
-            top_n_sorted[event_id] = {"start": v["start"],
-                                      "end": v["end"]}
-            if v.get("duration"):
-                top_n_sorted[event_id]["duration"] = v["duration"]
+            top_n_sorted[event_id] = {"start": data["start"],
+                                      "end": data["end"],
+                                      "duration": data["duration"]}
 
         return top_n_sorted
 
-    def get_top_n_sorted(self, max):
-        return self.get_top_sequences(max, sort_by_key="duration",
+    def get_top_n_sorted(self, limit):
+        return self.get_top_sequences(limit, sort_key="duration",
                                       reverse=True)
 
     def get_stats(self, key):
