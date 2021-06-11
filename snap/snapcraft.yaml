@@ -22,14 +22,22 @@ environment:
 apps:
   hotsos:
     command: hotsos.sh
-    plugs: [home, removable-media]
+    plugs:
+      - home
+      - removable-media
+      - log-observe
+      - mount-observe
+      - network-observe
+      - openvswitch
+      - system-backup
+      - system-observe
     environment:
       LD_PRELOAD: "$SNAP/libpreload-semaphores.so"
 parts:
   hotsos:
     source: .
     plugin: dump
-    stage-packages: [coreutils, bsdmainutils, jq, bc, systemd]
+    stage-packages: [coreutils, bsdmainutils, jq, bc, systemd, util-linux, iproute2]
     build-packages: [git]
     override-build: |
       git rev-parse --short HEAD > repo-info
