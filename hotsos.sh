@@ -264,7 +264,7 @@ run_part ()
 {
     local plugin=$1
     local part=$2
-    local type=${3:-parts}
+    local type=${3:-""}
     local t_start
     local t_end
 
@@ -277,7 +277,8 @@ run_part ()
     export PYTHONPATH="$CWD/plugins/$plugin:$CWD/plugins:$CWD"
     export PLUGIN_YAML_DEFS="$CWD/defs"
 
-    $CWD/plugins/$plugin/$part >> $MASTER_YAML_OUT
+    [[ -z $type ]] || type="$type/"
+    $CWD/plugins/$plugin/${type}$part >> $MASTER_YAML_OUT
 
     t_end=`date +%s%3N`
     delta=`echo "scale=3;($t_end-$t_start)/1000"| bc`
@@ -328,7 +329,7 @@ for data_root in "${SOS_PATHS[@]}"; do
         # setup plugin temp area
         PLUGIN_TMP_DIR=`mktemp -d`
         for part in `find $CWD/plugins/$plugin -maxdepth 1 -executable -type f,l| \
-                grep -v __pycache__`; do
+                egrep -v "__pycache__|extras"`; do
             run_part $plugin `basename $part`
         done
 

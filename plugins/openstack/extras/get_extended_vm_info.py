@@ -9,7 +9,7 @@ import xml.etree.ElementTree as ET
 from collections import OrderedDict
 
 from common import cli_helpers, constants
-from openstack_common import OpenstackChecksBase
+from common.plugins.openstack import OpenstackChecksBase
 from common import plugintools
 
 NEUTRON_LOGPATH = os.path.join(constants.DATA_ROOT, "var/log/neutron")
@@ -71,7 +71,7 @@ class OpenstackExtendedInfo(OpenstackChecksBase):
                     return val
 
     def find_instance_by_uuid(self, uuid):
-        for line in cli_helpers.get_ps():
+        for line in cli_helpers.CLIHelper().ps():
             ret = re.compile(r".+guest=(\S+),.+product=OpenStack Nova.+uuid={}"
                              r".+".format(uuid)).match(line)
             if ret:
