@@ -37,7 +37,7 @@ class FilterDef(object):
 
 class SearchDef(object):
 
-    def __init__(self, pattern, tag=None, hint=None):
+    def __init__(self, pattern, tag=None, hint=None, use_findall=False):
         """
         Add a search definition
 
@@ -45,29 +45,49 @@ class SearchDef(object):
         @param tag: optional user-friendly identifier for this search term
         @param hint: pre-search term to speed things up
         """
+        self.use_findall = use_findall
         if type(pattern) != list:
-            self.patterns = [re.compile(pattern)]
+            if use_findall:
+                self.patterns = [re.compile(pattern, re.MULTILINE)]
+            else:
+                self.patterns = [re.compile(pattern)]
         else:
             self.patterns = []
             for _pattern in pattern:
-                self.patterns.append(re.compile(_pattern))
+                if use_findall:
+                    self.patterns.append(re.compile(_pattern, re.MULTILINE))
+                else:
+                    self.patterns.append(re.compile(_pattern))
 
         self.tag = tag
         if hint:
-            self.hint = re.compile(hint)
+            if use_findall:
+                self.hint = re.compile(hint, re.MULTILINE)
+            else:
+                self.hint = re.compile(hint)
         else:
             self.hint = None
 
     def run(self, line):
         """Execute search patterns against line and return first match."""
         if self.hint:
-            ret = self.hint.search(line)
+            if self.use_findall:
+                ret = self.hint.findall(line)
+            else:
+                ret = self.hint.search(line)
+
             if not ret:
                 return None
 
         ret = None
         for pattern in self.patterns:
-            ret = pattern.match(line)
+            if self.use_findall:
+                sys.stderr.write(">> start\n")
+                ret = pattern.findall(line)
+                sys.stderr.write(">> finish\n")
+            else:
+                ret = pattern.match(line)
+
             if ret:
                 return ret
 
@@ -158,7 +178,7 @@ class SearchResultPart(object):
 class SearchResult(object):
 
     def __init__(self, linenumber, source, result, search_term_tag=None,
-                 section_idx=None, sequence_obj_id=None):
+                 section_idx=None, sequence_obj_id=None, findall=False):
         """
         @param linenumber: line number that produced a match
         @param source: data source (path)
@@ -173,15 +193,22 @@ class SearchResult(object):
         self._parts = {}
         self.sequence_obj_id = sequence_obj_id
         self.section_idx = section_idx
-        num_groups = len(result.groups())
-        # NOTE: this does not include group(0)
-        if num_groups:
-            # To reduce memory footprint, don't store group(0) i.e. the whole
-            # line, if there are actual groups in the result.
-            for i in range(1, num_groups + 1):
-                self._add(i, result.group(i))
+        if not findall:
+            num_groups = len(result.groups())
+            # NOTE: this does not include group(0)
+            if num_groups:
+                # To reduce memory footprint, don't store group(0) i.e. the whole
+                # line, if there are actual groups in the result.
+                for i in range(1, num_groups + 1):
+                    self._add(i, result.group(i))
+            else:
+                self._add(0, result.group(0))
         else:
-            self._add(0, result.group(0))
+            if type(result) == list:
+                for i, r in enumerate(result, start=1):
+                    self._add(i, r)
+            else:
+                self._add(1, result)
 
     def _add(self, index, value):
         self._parts[index] = SearchResultPart(index, value)
@@ -325,7 +352,7 @@ class FileSearcher(object):
 
     def _search_task_wrapper(self, path, term_key):
         try:
-            with gzip.open(path, 'r') as fd:
+            with gzip.open(path, 'rt') as fd:
                 try:
                     # test if file is gzip
                     fd.read(1)
@@ -356,6 +383,29 @@ class FileSearcher(object):
     def _search_task(self, term_key, fd, path):
         results = []
         sequence_results = {}
+
+        data = fd.read()
+        filtered = {}
+        import sys
+        if data:
+            for s_term in self.paths[term_key]:
+                if type(s_term) == SearchDef and s_term.use_findall:
+                    sys.stderr.write(">> {}\n".format(s_term.patterns))
+                    ret = s_term.run(data)
+                    if ret:
+                        for subresult in ret:
+                            r = SearchResult(0, path, subresult, s_term.tag, findall=True)
+                            results.append(r)
+                else:
+                    if term_key not in filtered:
+                        filtered[term_key] = [s_term]
+                    else:
+                        filtered[term_key].append(s_term)
+
+        if not filtered:
+            return
+
+        fd.seek(0)        
         for ln, line in enumerate(fd, start=1):
             if type(line) == bytes:
                 line = line.decode("utf-8")
@@ -364,7 +414,7 @@ class FileSearcher(object):
             if self.line_filtered(term_key, line):
                 continue
 
-            for s_term in self.paths[term_key]:
+            for s_term in filtered.get(term_key):
                 if type(s_term) == SequenceSearchDef:
                     # if the ending is defined and we match a start while
                     # already in a section, we start again.

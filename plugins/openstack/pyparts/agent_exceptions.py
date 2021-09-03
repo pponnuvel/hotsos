@@ -97,17 +97,20 @@ class AgentExceptionChecks(OpenstackEventChecksBase):
                 for subexpr in exprs:
                     expr = expr_template.format(subexpr)
                     hint = "( ERROR | Traceback)"
-                    sd = SearchDef(expr, tag=agent, hint=hint)
+                    sd = SearchDef(expr, tag=agent, hint=hint,
+                                   use_findall=True)
                     self.searchobj.add_search_term(sd, data_source)
 
                 for subexpr in self._agent_warnings.get(svc, []):
                     expr = expr_template.format(subexpr)
-                    sd = SearchDef(expr, tag=agent, hint="WARNING")
+                    sd = SearchDef(expr, tag=agent, hint="WARNING",
+                                   use_findall=True)
                     self.searchobj.add_search_term(sd, data_source)
 
                 for subexpr in self._agent_errors.get(svc, []):
                     expr = expr_template.format(subexpr)
-                    sd = SearchDef(expr, tag=agent, hint="ERROR")
+                    sd = SearchDef(expr, tag=agent, hint="ERROR",
+                                   use_findall=True)
                     self.searchobj.add_search_term(sd, data_source)
 
     def register_search_terms(self):
