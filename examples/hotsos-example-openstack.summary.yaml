@@ -295,3 +295,12 @@ openstack:
       a malicious QCOW2 image with an external data file allows an authenticated user
       to read arbitrary files from the host. There is a fix available in the Ubuntu
       archives and upgrading is recommended.
+  potential-issues:
+    OpenstackWarnings:
+      - This node is used as an Openstack hypervisor but is not using cpufreq scaling_governor
+        in "performance" mode (actual=unknown). The cpufreq scaling governor could
+        not be determined which typically means frequency scaling is disabled in the
+        BIOS. Please check that the BIOS power management is set to "OS Control" or
+        equivalent and reboot. If already set correctly, install cpufrequtils, set
+        "GOVERNOR=performance" in /etc/default/cpufrequtils and run systemctl restart
+        cpufrequtils.
