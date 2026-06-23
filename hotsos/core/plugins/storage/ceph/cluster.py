@@ -838,3 +838,54 @@ class CephCluster():  # pylint: disable=too-many-public-methods
                 _bad_osds.append(osd['name'])
 
         return sorted(_bad_osds)
+
+    # Percentage by which OSD sizes within a device class may differ
+    # before we consider them "mixed".
+    OSD_MIXED_SIZE_THRESHOLD_PERCENT = 10
+
+    @cached_property
+    def mixed_size_osd_device_classes(self):
+        """Return device classes that contain OSDs with mixed sizes.
+
+        Groups OSDs by device class and checks whether the smallest and
+        largest OSD within each class differ by more than
+        OSD_MIXED_SIZE_THRESHOLD_PERCENT.  Returns a list of strings
+        describing the affected classes and size ranges.
+        """
+        if not self.osd_df_tree:
+            return []
+
+        # Collect sizes per device class
+        class_sizes = {}
+        for osd in self.osd_df_tree['nodes']:
+            if osd['id'] < 0:
+                continue
+            device_class = osd.get('device_class')
+            if not device_class:
+                continue
+            kb = osd.get('kb', 0)
+            if kb <= 0:
+                continue
+            class_sizes.setdefault(device_class, []).append(kb)
+
+        results = []
+        threshold = self.OSD_MIXED_SIZE_THRESHOLD_PERCENT / 100.0
+        for device_class, sizes in sorted(class_sizes.items()):
+            if len(sizes) < 2:
+                continue
+            min_size = min(sizes)
+            max_size = max(sizes)
+            if (max_size - min_size) > (min_size * threshold):
+                min_tb = round(min_size / (1024 * 1024 * 1024), 2)
+                max_tb = round(max_size / (1024 * 1024 * 1024), 2)
+                results.append(
+                    f"'{device_class}' ({min_tb} TiB - {max_tb} TiB)")
+
+        return results
+
+    @cached_property
+    def mixed_size_osd_device_classes_str(self):
+        if not self.mixed_size_osd_device_classes:
+            return None
+
+        return ", ".join(self.mixed_size_osd_device_classes)
