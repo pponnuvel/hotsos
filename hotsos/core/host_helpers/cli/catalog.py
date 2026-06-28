@@ -46,6 +46,17 @@ class CommandCatalog(UserDict):
             'apparmor_status':
                 [BinCmd('apparmor_status'),
                  FileCmd('sos_commands/apparmor/apparmor_status')],
+            'ceph_daemon_osd_version':
+                [BinCmd('ceph daemon osd.{osd_id} version',
+                        json_decode=True),
+                 FileCmd('sos_commands/ceph_osd/'
+                         'ceph_daemon_.var.run.ceph.'
+                         'ceph-osd.{osd_id}.asok_version',
+                         json_decode=True),
+                 FileCmd('sos_commands/ceph_osd/'
+                         'ceph_daemon_.var.snap.microceph.current.run.'
+                         'ceph-osd.{osd_id}.asok_version',
+                         json_decode=True)],
             'ceph_daemon_osd_config_show':
                 [BinCmd('ceph daemon osd.{osd_id} config show',
                         json_decode=True),
