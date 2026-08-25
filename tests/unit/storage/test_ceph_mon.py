@@ -443,9 +443,11 @@ class TestCoreCephCluster(  # pylint: disable=too-many-public-methods
     }
 
     def test_manual_upmaps_disrespecting_failure_domain(self):
-        # pg 3.326 fully overridden onto osds 0 and 1 (both on host0) plus
-        # osd 2 - this violates the host failure domain. pg 3.10 uses
-        # pg-upmap-items, resulting up set [0, 1, 3] (0 and 1 on host0).
+        """
+        pg 3.326 fully overridden onto osds 0 and 1 (both on host0) plus
+        osd 2 - this violates the host failure domain. pg 3.10 uses
+        pg-upmap-items, resulting up set [0, 1, 3] (0 and 1 on host0).
+        """
         osd_dump = {
             "pools": [{"pool": 3, "pool_name": "cinder", "crush_rule": 0}],
             "pg_upmap": [{"pgid": "3.326", "osds": [0, 1, 2]}],
@@ -476,8 +478,10 @@ class TestCoreCephCluster(  # pylint: disable=too-many-public-methods
                 "3.326 (failure domain 'host': host0=[0, 1])")
 
     def test_manual_upmaps_respecting_failure_domain(self):
-        # pg 3.326 overridden onto osds on three distinct hosts - no
-        # violation.
+        """
+        pg 3.326 overridden onto osds on three distinct hosts - no
+        violation.
+        """
         osd_dump = {
             "pools": [{"pool": 3, "pool_name": "cinder", "crush_rule": 0}],
             "pg_upmap": [{"pgid": "3.326", "osds": [0, 2, 3]}],
@@ -499,6 +503,9 @@ class TestCoreCephCluster(  # pylint: disable=too-many-public-methods
                 cluster.manual_upmaps_disrespecting_failure_domain_str)
 
     def test_manual_upmaps_no_upmaps(self):
+        """
+        Test when there are no pending unmaps that violate failure domains.
+        """
         cluster = ceph.CephCluster()
         self.assertEqual(
             cluster.manual_upmaps_disrespecting_failure_domain, {})
